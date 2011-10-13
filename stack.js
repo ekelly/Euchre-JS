@@ -1,5 +1,15 @@
+/*
+*
+*	Credit for a large portion of this code goes to BrainJar
+*   They provided a nice base implementation which I altered
+*   to work with Euchre
+*
+*/
+
 var Card = require('./card.js');
 
+// A Stack is a new Stack()
+// Represents a collection of cards
 function Stack() {
 
   // Create an empty array of cards.
@@ -19,7 +29,10 @@ function Stack() {
   this.contains      = contains;
 }
 /*
- Alternative constructor.  Not used
+ Alternative constructor.  Not used.
+ I may change my mind later down the road,
+ but since both constructors are interchangable,
+ it doesn't matter that much
 function stack() {
 
   return {
@@ -39,7 +52,8 @@ function stack() {
   }
 }
 */
-// A Deck is a stack
+
+// A Deck is a Stack
 // Creates a Deck with the given number of cards
 // number -> Deck
 function stackMakeDeck(n) {
@@ -186,6 +200,8 @@ function playable(s) {
   }
 }
 
+// Swaps the suit of the left bauer
+// -> 
 function setTrump(s) {
 	for(c in this.cards) {
 		c.switchSuit(s);

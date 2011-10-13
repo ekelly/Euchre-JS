@@ -5,6 +5,8 @@ function start(game, context) {
 		deck = new Stack().makeDeck(24).shuffle(7),
 		flip = deck.stackDeal();
 	deck.setTrump(flip.suit);
+	
+	// Fix this later.  There has to be a better way
 	var playerOne = new Stack.stackAddCard(deck.stackDeal())
 			.stackAddCard(deck.stackDeal())
 			.stackAddCard(deck.stackDeal())
@@ -44,11 +46,14 @@ function broadcast(connection, msg, data) {
 	connection.emit(msg, data);
 }
 
+// Returns the next player in line after n
+// Number -> Number
 function nextPlayer(n) {
 	return (n+1) % 4;
 }
 
-// Sets trump
+// Sets trump.  Called when a player indicates trump is set
+// Game Context -> 
 function setTrump(game, context) {
 	game['trump'] = context['trump'];
 	data = {
@@ -66,7 +71,7 @@ function setTrump(game, context) {
 	}
 }
 
-// Receive a card
+// Receive a card.  Called when a player makes a move
 function receiveCard() {
 	alert('received card');
 }

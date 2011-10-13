@@ -1,3 +1,4 @@
+// Object containing all the game objects
 games = {};
 
 var http = require('http'),
@@ -24,12 +25,17 @@ function handler (request, response) {
             router.route(pathname, response, data);
         }
     });
-    
-    //router.route(pathname, response);
 }
 
 app.listen(8888, "127.0.0.1");
+
+
+
+
+
 /*
+Notes/Examples of Socket.io for reference
+
 io.sockets.on('connection', function(socket) {
     io.sockets.emit('this', { will: 'be received by everyone'});
     

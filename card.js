@@ -1,3 +1,11 @@
+/*
+*
+*	Credit for about half this code goes to BrainJar
+*   They provided a nice base implementation which I
+*   altered to work with Euchre
+*
+*/
+
 var trumpRank = {
     "9": 0,
     "10": 1,
@@ -13,20 +21,9 @@ var trumpRank = {
     "K": 4,
     "A": 5
 };
-/*
- Alternative Constructor.  Not used
-function card(rank, suit) {
 
-  return {
-      rank: rank,
-      suit: suit,
-      activeSuit: suit,
-      toString: cardToString,
-      isHigher: isHigher
-  }
-}
-*/
-
+// Card Suit -> boolean
+// Returns true if this card is higher than that card, given the trump suit
 function isHigher(card, trump) {
     var diff;
     if (this.activeSuit == trump) {
@@ -58,6 +55,9 @@ function isHigher(card, trump) {
     }
 }
 
+// Suit -> 
+// Switches the active suit of the card if it is the left bauer
+// (left bauer is the Jack of the opposing suit)
 function switchSuit(trump) {
     if (this.rank == "J") {
         switch (trump) {
@@ -150,7 +150,24 @@ function Card(rank, suit) {
     this.toString = cardToString;
     this.switchSuit = switchSuit;
     this.isHigher = isHigher;
-    //this.createNode = cardCreateNode;
 }
 
 module.exports = Card;
+
+
+/*
+ Alternative Constructor.  Not used
+ I decided to go for the method that explicitly needs new.
+ I'll probably change my mind again later down the road
+function card(rank, suit) {
+
+  return {
+      rank: rank,
+      suit: suit,
+      activeSuit: suit,
+      toString: cardToString,
+      switchSuit: switchSuit,
+      isHigher: isHigher
+  }
+}
+*/

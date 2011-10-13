@@ -6,31 +6,12 @@ var Card = require('./card.js'),
     sys = require('sys'),
     fs = require('fs');
 
-
+// NOTE TO SELF:
 // socket.emit can take multiple args, including functions
 // the client will recieve these and put them into the
 // callback function
 
-
-function start(response, context) {
-    response.writeHead(200, {"Content-Type": "text/plain"});
-    response.write("Hello World\n");
-    response.end();
-}
-
-function showFile(loc) {
-    fs.readFile(loc, function(err, data) {
-        if (err) {
-            response.writeHead(500);
-            response.end('Error loading index.html');
-            return;
-        }
-        
-        response.writeHead(200);
-        response.end(data);
-    });
-}
-
+// Personal test function to check status
 function test(response, context) {
     response.write("Testing\n\n");
     var output = '';
@@ -46,12 +27,11 @@ function test(response, context) {
 }
 
 function play(response, context) {
-    // Main Logic code
-    // AJAX/Sockets only
     var gn = games[context['gamename']],
         game = games[gn];
     
     // TODO: Set up computer players
+    // TODO: Decide how computer players will be represented
     /*
     if(game.hands.length < 4) {
         for(var i = 0; i < 4 - game['hands'].length; i++) {
@@ -59,19 +39,25 @@ function play(response, context) {
         }
     }
     */
-    //game.dealer = Math.floor(Math.random()*4);
+
+	// Set up triggers for game events
+	// Send each method the game information and any GET/POST vars
     game.connection
     	.on('start', main.start(game, context))
         .on('setTrump', main.setTrump(game, context))
         .on('playCard', main.playCard(game, context));
 }
 
+// Represents the 'join' world.  Game could exists, or could be created
+// The player has not yet joined a game
 function join(response, context) {
     // Output the HTML to display the join dialog
     // Contains links to "/wait?gamename
-    //showFile('./index.html');
+
     var data = {};
     /*
+    Old code
+    
     response.write("Game list:\n");
     for(gameName in games) {
         response.write(gameName + " : " + 
@@ -112,23 +98,28 @@ function join(response, context) {
 	
 }
 
+// Represents the 'waiting' world.  Game exists but has not started
 function wait(response, context) {
     // Output the board & a button to start playing
     // That button is a Socket.io call to play()
     var gn = context['gamename'];
     if(games[gn] == undefined) {
+    
+    	// Create the game
+    	/*
+		    Each player's hand - [Stack, Stack, Stack, Stack]
+		    The deck - Stack
+		    The trick - [Card, Card, Card, Card]
+		    How many tricks have been played / won - [Number, Number, Number, Number] 
+		    The dealer - Player
+		    Who called trump - Player
+		    trump - Suit
+		    flip - Card flipped over
+		    The score - [Number, Number]
+		    Who's turn it is - Player
+		    Communication with this 'room' - socket.io connection
+        */
         games[gn] = {
-            /*
-    Each player's hand - [Stack, Stack, Stack, Stack]
-    The deck - Stack
-    The trick - [Card, Card, Card, Card]
-    How many tricks have been played / won - [Number, Number, Number, Number] 
-    The dealer - Player
-    Who called trump - Player
-    The score - [Number, Number]
-    Who's turn it is - Player
-    Communication with this 'room' - socket.io connection
-            */
             hands: [new Stack()],
             deck: new Stack().makeDeck(24),
             trick: [],
@@ -165,7 +156,6 @@ function wait(response, context) {
     response.end();
 }
 
-exports.start = start;
 exports.test = test;
 exports.join = join;
 exports.play = play;
