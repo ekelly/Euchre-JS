@@ -11,6 +11,15 @@ var Card = require('./card.js'),
 // the client will recieve these and put them into the
 // callback function
 
+// Helper function, checks if an object is empty
+// Object -> Boolean
+function isEmpty(object) { 
+	for(var i in object) { 
+		return true; 
+	}
+	return false;
+}
+
 // Personal test function to check status
 function test(response, context) {
     response.write("Testing\n\n");
@@ -54,7 +63,6 @@ function join(response, context) {
     // Output the HTML to display the join dialog
     // Contains links to "/wait?gamename
 
-    var data = {};
     /*
     Old code
     
@@ -62,10 +70,6 @@ function join(response, context) {
     for(gameName in games) {
         response.write(gameName + " : " + 
         games[gameName].hands.length + "\n");
-        data['games'] = { 
-        	name:   gameName,
-        	length: games[gameName].hands.length
-        };
     }
     var input = '<form name="input" action="http://localhost:8888/wait" method="get">' +
 			'Game name: <input type="text" name="gamename" />' +
@@ -78,13 +82,16 @@ function join(response, context) {
     response.end();
     */
     
+    var data = {
+    	show: isEmpty(games)
+    };
     for(gameName in games) {
         data['games'] = { 
         	name:   gameName,
         	length: games[gameName].hands.length
         };
     }
-    
+        
     template.render('index.html', data, {}, function (err, output) {
 	  if (err) {
 	    throw err;
@@ -102,7 +109,8 @@ function join(response, context) {
 function wait(response, context) {
     // Output the board & a button to start playing
     // That button is a Socket.io call to play()
-    var gn = context['gamename'];
+    var gn = context['gamename'],
+    	data = {};
     if(games[gn] == undefined) {
     
     	// Create the game
@@ -121,6 +129,7 @@ function wait(response, context) {
         */
         games[gn] = {
             hands: [new Stack()],
+            players: [],
             deck: new Stack().makeDeck(24),
             trick: [],
             tricksTaken: [],
@@ -134,26 +143,36 @@ function wait(response, context) {
                 .on('connection', function (socket) {
                 	if(this.hands.length < 4) {
                 		if(this.players.contains(socket)) {
-                			response.write('You already joined game '+gn);
+                			data['message'] = "You already joined game " + gn;
+                			socket.emit('message', data["message"]);
                 		} else {
 	                		socket.set('player num', this.hands.length - 1, function() {
-		                    socket.emit('player num', {player: this.hands.length - 1});
-			                    response.write('You are player #: ' + this.hands.length);
+		                    	socket.emit('player num', {player: this.hands.length - 1});
+			                    	response.write('You are player #: ' + this.hands.length);
 			                });
 		                	games[gn].players.push(socket);
+		                	games[gn].hands.push(new Stack());
+		                	this.connection.emit('join', 'Player '+games[gn].players.length+' joined');
 		                }
                 	}
                 })
                 .on('play', play)
             }
-        response.write('Game ' + gn + ' created.');
+        data['message'] = "Game " + gn + " created.";
     } else if(games[gn].hands.length >= 4) {
-        response.write('Sorry!  Game is full');
+        data['message'] = "Sorry!  Game is full";
     } else {
-        games[gn].hands.push(new Stack());
-        games[gn].connection.emit('join', 'Player '+games[gn].players.length+' joined');
+	    console.log(games[gn].players);
     }
-    response.end();
+    template.render('wait.html', data, {}, function (err, output) {
+	  if (err) {
+	    throw err;
+	  }
+	
+	  var buffer = '';
+	  output.addListener('data', function (c) {buffer += c;})
+	        .addListener('end', function () { response.write(buffer); response.end(); });
+	});
 }
 
 exports.test = test;
