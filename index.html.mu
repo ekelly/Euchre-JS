@@ -3,12 +3,24 @@
 	<head>
 		<title>Euchre</title>
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<!--<script src="http://localhost:80/socket.io/socket.io.js"></script>-->
+		<script>	
+			function joinGame(name) {
+				client.emit('join game', name, function(response) {
+					if(response.error) {
+						alert(response.error);
+					} else {
+						alert(response);	
+					}
+				});
+			}
+		</script>
 	</head>
 	<body>
 		<h2>Game list</h2>
 		{{#show}}
 			{{#games}}
-				<a href="http://localhost:8888/wait?gamename={{name}}">{{name}}</a> : {{length}} players
+				<a onclick="joinGame({{name}})">{{name}}</a> : {{length}} players
 			{{/games}}
 		{{/show}}
 		{{^show}}

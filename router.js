@@ -6,10 +6,9 @@ var requestHandlers = require('./requestHandlers.js');
 
 var handle = {};
 handle["/"] = requestHandlers.join;
-handle["/start"] = requestHandlers.start;
 handle["/join"] = requestHandlers.join;
 handle["/wait"] = requestHandlers.wait;
-handle["/play"] = requestHandlers.play;
+handle["/game"] = requestHandlers.game;
 handle["/test"] = requestHandlers.test;
 
 // Context gets passed around a lot - it's just the GET and POST variables combined

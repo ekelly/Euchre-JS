@@ -6,11 +6,6 @@ var Card = require('./card.js'),
     sys = require('sys'),
     fs = require('fs');
 
-// NOTE TO SELF:
-// socket.emit can take multiple args, including functions
-// the client will recieve these and put them into the
-// callback function
-
 // Helper function, checks if an object is empty
 // Object -> Boolean
 function isEmpty(object) { 
@@ -57,30 +52,11 @@ function play(response, context) {
         .on('playCard', main.playCard(game, context));
 }
 
-// Represents the 'join' world.  Game could exists, or could be created
+// Represents the 'join' world.  Game could exist, or could be created
 // The player has not yet joined a game
 function join(response, context) {
     // Output the HTML to display the join dialog
     // Contains links to "/wait?gamename
-
-    /*
-    Old code
-    
-    response.write("Game list:\n");
-    for(gameName in games) {
-        response.write(gameName + " : " + 
-        games[gameName].hands.length + "\n");
-    }
-    var input = '<form name="input" action="http://localhost:8888/wait" method="get">' +
-			'Game name: <input type="text" name="gamename" />' +
-			'<input type="submit" Value="Submit" />' +
-	'</form>';
-	
-	response.write(input);
-	response.write('</body>');
-    
-    response.end();
-    */
     
     var data = {
     	show: isEmpty(games)
@@ -105,7 +81,7 @@ function join(response, context) {
 	
 }
 
-// Represents the 'waiting' world.  Game exists but has not started
+// Represents the 'waiting' screen.  Game exists but has not started
 function wait(response, context) {
     // Output the board & a button to start playing
     // That button is a Socket.io call to play()
@@ -139,8 +115,10 @@ function wait(response, context) {
             flip: undefined,
             score: [0, 0],
             turn: undefined,
+            /*
             connection: io.of('/' + gn)
                 .on('connection', function (socket) {
+                	console.log("Client connected to "+gn);
                 	if(this.hands.length < 4) {
                 		if(this.players.contains(socket)) {
                 			data['message'] = "You already joined game " + gn;
@@ -156,15 +134,16 @@ function wait(response, context) {
 		                }
                 	}
                 })
-                .on('play', play)
+                .on('play', play);
+                */
             }
         data['message'] = "Game " + gn + " created.";
     } else if(games[gn].hands.length >= 4) {
         data['message'] = "Sorry!  Game is full";
     } else {
-	    console.log(games[gn].players);
+	    //console.log(games[gn].players);
     }
-    template.render('wait.html', data, {}, function (err, output) {
+    template.render('game.html', data, {}, function (err, output) {
 	  if (err) {
 	    throw err;
 	  }
@@ -177,5 +156,5 @@ function wait(response, context) {
 
 exports.test = test;
 exports.join = join;
-exports.play = play;
+exports.game = wait;
 exports.wait = wait;
