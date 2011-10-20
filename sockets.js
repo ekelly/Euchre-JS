@@ -4,7 +4,7 @@ function start() {
 	io.sockets.on('connection', function(socket) {
     
 	    socket.on('join game', function(data, responseFtn) {
-		  var clients = io.sockets.clients('room');
+		  var clients = io.sockets.clients(data);
 		  
 		  if(clients.length < 4) {
 			  socket.set('player', clients.length, function() {
@@ -21,7 +21,16 @@ function start() {
 	    
 	    socket.on('start game', function(game, msg) {
 	    	console.log("Game " + game + " starting");
-	    	main.start(game, msg);
+	    	var data = main.start(game, msg),
+	    		clients = io.sockets.clients(game);
+	    	// Message the status to everyone
+	    	sockets.emit('status', data);
+	    	// Let the player whose turn it is know
+	    	socket.get('player', function(err, player) {
+	    		if(player == data.turn) {
+	    			socket.emit('turn');
+	    		}
+	    	});
 	    	console.log("Game " + game + " started");
 	    });
 	    
@@ -29,11 +38,38 @@ function start() {
 	    	console.log("Received card " + card.toString());
 	    	// Get socket player number
 	    	socket.get('player', function (err, player) {
-				main.playCard(game, player, card);
+				var data = main.playCard(game, player, card);
+				// Let everyone know what happened
+				sockets.emit('status', data);
+				// Let the player whose turn it is know
+		    	socket.get('player', function(err, player) {
+		    		if(player == data.turn) {
+		    			socket.emit('turn');
+		    		}
+		    	});
 		    });
 	    });
 	    
-	    socket.on('set trump', main.setTrump);
+	    socket.on('set trump', function(game, action) {
+	    	console.log("Setting trump… maybe");
+	    	switch(action) {
+				case 'pass':
+					// Next player
+					break;
+				case 'pick up':
+					// Set trump
+					main.setTrump(game, trump);
+					// Tell dealer to pick up & discard
+					main.pickUp(game, dealer);
+					break;
+				case 'go alone':
+					main.setTrump(game, trump);
+					// Some logic to skip over the partner
+					break;
+			}
+	    	main.setTrump(game, action);
+	    	console.log("Setting trump (maybe) completed");
+	    });
 	    
 	    socket.on('disconnect', function () {
 	        console.log('user disconnected');

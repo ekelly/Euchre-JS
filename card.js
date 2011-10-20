@@ -137,6 +137,13 @@ function cardToString() {
     return rank + " of " + suit;
 }
 
+// Compares two cards for equality
+// Card -> Boolean
+function equals(card) {
+	return this.suit == card.suit &&
+		this.rank == card.rank;
+}
+
 // A rank is a String "2" - "10", "J", "Q", "K", "A"
 // A suit is one of "H", "D", "S", "C"
 // A card is a new Card(Rank, Suit);
@@ -150,6 +157,7 @@ function Card(rank, suit) {
     this.toString = cardToString;
     this.switchSuit = switchSuit;
     this.isHigher = isHigher;
+    this.equals = equals;
 }
 
 module.exports = Card;

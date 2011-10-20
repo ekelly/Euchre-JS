@@ -26,14 +26,8 @@ function start(game, context) {
     games[game].trump = flip.suit;
     games[game].score = [0, 0];
     games[game].turn = nextPlayer(dealer);
-
-	broadcast(game, 'status', data);
-}
-
-// Sends the result of each action
-// String String Object
-function broadcast(game, msg, data) {
-	io.sockets.to(game).send(msg, data);
+    
+    return games[game];
 }
 
 // Returns the next player in line after n
@@ -42,31 +36,25 @@ function nextPlayer(n) {
 	return (n+1) % 4;
 }
 
-// Sets trump.  Called when a player indicates trump is set
-// Game Context -> 
-function setTrump(game, context) {
-	game['trump'] = context['trump'];
-	data = {
-		trump: game['trump'],
-	};
-	if(context['pickUp']) {
-		game['turn'] = game['dealer'];
-		data['turn'] = game['turn'];
-		broadcast(context, 'status', data);
-		broadcast(game.players[game['dealer']], 'discard', data);
-	} else {
-		game['turn'] = nextPlayer(game['dealer']);
-		data['turn'] = game['turn'];
-		broadcast(context, 'status', data);
-	}
+// Called when a player indicates trump has been set
+// String Suit ->
+function setTrump(game, trump) {
+	games[game].trump = trump;
+}
+
+// Tells the dealer to pick up the card
+function pickUp(game, dealer) {
+	
 }
 
 // Receive a card.  Called when a player makes a move
-function receiveCard(game, msg) {
+// String Number Card ->
+function receiveCard(game, player, card) {
 	alert('received card');
 }
 
 exports.start = start;
 exports.setTrump = setTrump;
+exports.pickUp = pickUp;
 exports.playCard = receiveCard;
 exports.broadcast = broadcast;

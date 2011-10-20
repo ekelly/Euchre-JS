@@ -18,6 +18,10 @@
 				$('body').append(msg);
 			});
 			
+			client.on('turn', function() {
+				console.log('My turn!');
+			});
+			
 		</script>
 	</head>
 	<body>
