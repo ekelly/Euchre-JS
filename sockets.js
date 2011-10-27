@@ -61,6 +61,7 @@ function start() {
 					main.setTrump(game, trump);
 					// Tell dealer to pick up & discard
 					main.pickUp(game, dealer);
+					// Player start
 					break;
 				case 'go alone':
 					main.setTrump(game, trump);
@@ -75,38 +76,6 @@ function start() {
 	        console.log('user disconnected');
 	    });
 	});
-}
-
-function setUpGame(gn) {
-
-    if(games[gn] == undefined) {    
-    	// Create the game
-    	/*
-		    Each player's hand - [Stack, Stack, Stack, Stack]
-		    The deck - Stack
-		    The trick - [Card, Card, Card, Card]
-		    How many tricks have been played / won - [Number, Number, Number, Number] 
-		    The dealer - Player
-		    Who called trump - Player
-		    trump - Suit
-		    flip - Card flipped over
-		    The score - [Number, Number]
-		    Who's turn it is - Player
-		    Communication with this 'room' - socket.io connection
-        */
-        games[gn] = {
-            hands: [new Stack(), new Stack(), new Stack(), new Stack()],
-            deck: new Stack().makeDeck(24),
-            trick: [],
-            tricksTaken: [],
-            dealer: undefined,
-            calledTrump: undefined,
-            trump: undefined,
-            flip: undefined,
-            score: [0, 0],
-            turn: undefined,
-        }
-    }
 }
 
 
@@ -148,3 +117,5 @@ io.sockets.on('connection', function(socket) {
     });
 })
 */
+
+exports.start = main.setup;

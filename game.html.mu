@@ -20,6 +20,11 @@
 			
 			client.on('turn', function() {
 				console.log('My turn!');
+				// if we are selecting trump
+				
+				// if the flip has been turned over
+				
+				// otherwise, play a card
 			});
 			
 		</script>

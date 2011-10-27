@@ -1,7 +1,6 @@
 var Card = require('./card.js'),
     Stack = require('./stack.js'),
-    io = require('socket.io').listen(80),
-    main = require('./main.js'),
+    main = require('./logic.js'),
     template = require('./lib/mu.js'),
     sys = require('sys'),
     fs = require('fs');
@@ -83,65 +82,16 @@ function join(response, context) {
 
 // Represents the 'waiting' screen.  Game exists but has not started
 function wait(response, context) {
-    // Output the board & a button to start playing
-    // That button is a Socket.io call to play()
     var gn = context['gamename'],
     	data = {};
     if(games[gn] == undefined) {
-    
-    	// Create the game
-    	/*
-		    Each player's hand - [Stack, Stack, Stack, Stack]
-		    The deck - Stack
-		    The trick - [Card, Card, Card, Card]
-		    How many tricks have been played / won - [Number, Number, Number, Number] 
-		    The dealer - Player
-		    Who called trump - Player
-		    trump - Suit
-		    flip - Card flipped over
-		    The score - [Number, Number]
-		    Who's turn it is - Player
-		    Communication with this 'room' - socket.io connection
-        */
-        games[gn] = {
-            hands: [new Stack()],
-            players: [],
-            deck: new Stack().makeDeck(24),
-            trick: [],
-            tricksTaken: [],
-            dealer: undefined,
-            calledTrump: undefined,
-            trump: undefined,
-            flip: undefined,
-            score: [0, 0],
-            turn: undefined,
-            /*
-            connection: io.of('/' + gn)
-                .on('connection', function (socket) {
-                	console.log("Client connected to "+gn);
-                	if(this.hands.length < 4) {
-                		if(this.players.contains(socket)) {
-                			data['message'] = "You already joined game " + gn;
-                			socket.emit('message', data["message"]);
-                		} else {
-	                		socket.set('player num', this.hands.length - 1, function() {
-		                    	socket.emit('player num', {player: this.hands.length - 1});
-			                    	response.write('You are player #: ' + this.hands.length);
-			                });
-		                	games[gn].players.push(socket);
-		                	games[gn].hands.push(new Stack());
-		                	this.connection.emit('join', 'Player '+games[gn].players.length+' joined');
-		                }
-                	}
-                })
-                .on('play', play);
-                */
-            }
+        games[gn] = main.setup(gn);
         data['message'] = "Game " + gn + " created.";
     } else if(games[gn].hands.length >= 4) {
         data['message'] = "Sorry!  Game is full";
     } else {
 	    //console.log(games[gn].players);
+	    data['message'] = "Game: " + gn;
     }
     template.render('game.html', data, {}, function (err, output) {
 	  if (err) {
