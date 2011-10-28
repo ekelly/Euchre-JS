@@ -46,8 +46,19 @@ function creation() {
         flip: undefined,
         score: [0, 0],
         turn: undefined,
-        name: 'test2'
+        name: 'test'
     };
+    o1 = { 
+		hands: [new Stack(), new Stack(), new Stack(), new Stack()],
+        deck: d1,
+        trick: [],
+    };
+    o2 = { 
+		hands: [new Stack(), new Stack(), new Stack(), new Stack()],
+        deck: d1,
+        trick: [],
+    };
+    assertTrue("objectEquals", objEqual(o1, o2));
 }
 
 function testLogic() {
@@ -119,9 +130,11 @@ function objEqual(o1, o2) {
                       return false;
                   break;
               default:
-                  if (o1[p] != o2[p]) { 
-                  	return false; 
+                  if (o1[p] != o2[p] && !(typeof(o1[p])=='undefined' && 
+                  						  typeof(o2[p])=='undefined')) { 
+                  	return false;
                   }
+
           }
       } else {
           if (o2[p])
@@ -130,7 +143,7 @@ function objEqual(o1, o2) {
   }
 
   for(p in o2) {
-      if(typeof(o1[p])=='undefined') {
+      if(typeof(o1[p])=='undefined' && typeof(o1[p])!='undefined') {
       	return false;
       }
   }
