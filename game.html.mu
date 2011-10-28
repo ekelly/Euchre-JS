@@ -3,6 +3,8 @@
 	<head>
 		<title>Euchre</title>
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<script src="http://localhost/card.js"></script>
+		<script src="http://localhost/stack.js"></script>
 		<script src="http://localhost:8888/socket.io/socket.io.js"></script>
 		<script>
 			var client = io.connect('http://localhost:8888/');

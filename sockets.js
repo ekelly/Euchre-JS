@@ -23,7 +23,7 @@ function start() {
 	    
 	    socket.on('start game', function(game, msg) {
 	    	console.log("Game " + game + " starting");
-	    	var data = main.start(game, msg),
+	    	var data = main.start(games[game], msg),
 	    		clients = io.sockets.clients(game);
 	    	// Message the status to everyone
 	    	sockets.emit('status', data);

@@ -14,21 +14,6 @@ function isEmpty(object) {
 	return false;
 }
 
-// Personal test function to check status
-function test(response, context) {
-    response.write("Testing\n\n");
-    var output = '';
-            
-    response.write("Data:  \n{\n");
-    for (property in context) {
-      output += "\n" + property + ': ' + context[property]+';';
-      response.write("\t" + property + ": " + context[property] + ";\n");
-    }
-    response.write("}");
-    console.log("DATA: " + output);
-    response.end();
-}
-
 function play(response, context) {
     var gn = games[context['gamename']],
         game = games[gn];
@@ -107,7 +92,11 @@ function wait(response, context) {
 	});
 }
 
-exports.test = test;
+function jsServe() {
+	
+}
+
+exports.jsServe = jsServe;
 exports.join = join;
 exports.game = wait;
 exports.wait = wait;

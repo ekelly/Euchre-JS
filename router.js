@@ -2,14 +2,19 @@
 *	This code taken from a node.js tutorial.  http://nodebeginner.org
 */
 
-var requestHandlers = require('./requestHandlers.js');
+var requestHandlers = require('./requestHandlers.js'),
+	testing = require('./testing.js');
 
 var handle = {};
 handle["/"] = requestHandlers.join;
 handle["/join"] = requestHandlers.join;
 handle["/wait"] = requestHandlers.wait;
 handle["/game"] = requestHandlers.game;
-handle["/test"] = requestHandlers.test;
+handle["/test"] = testing.test;
+
+// Static JS files
+handle["/card.js"] = requestHandlers.jsServe;
+handle["/stack.js"] = requestHandlers.jsServe; 
 
 // Context gets passed around a lot - it's just the GET and POST variables combined
 function route(pathname, response, context) {

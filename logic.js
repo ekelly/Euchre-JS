@@ -1,32 +1,59 @@
 var Stack = require('./stack.js'),
 	Card  = require('./card.js');
 	
+	
+/* A game is:
+
+	{
+        hands: [Stack, Stack, Stack, Stack],
+        deck: Stack
+        trick: [Card, Card, Card, Card],
+        tricksTaken: [Number, Number, Number, Number],
+        dealer: Player,
+        calledTrump: Player,
+        trump: Suit,
+        flip: Card, Null, or Undefined,
+        score: [Number, Number],
+        turn: Player,
+        name: String
+    }
+
+    tricksTaken - How many tricks have been played / won
+    flip - Card flipped over
+    	* if undefined, play stage or game not started
+    	* if null, card flipped over trump stage
+    	* if card, trump stage
+    The score - [Number, Number]
+*/
+	
+	
 // Starts the game by dealing
 // Then flipping the top card
+// Game Context -> Game
 function start(game, context) {
 	var dealer = Math.floor(Math.random()*4),
-		deck = new Stack().makeDeck(24).shuffle(7),
+		deck = (new Stack()).makeDeck(1).shuffle(7),
 		flip = deck.stackDeal();
 	deck.setTrump(flip.suit);
 	
 	// Deal
-	games[game].hands = [];
+	game.hands = [];
 	for(var i = 0; i < 4; i++) {
-		games[game].hands[i] = new Stack()
+		game.hands[i] = new Stack()
 		for(var j = 0; i < 5; j++) {
-			games[game].hands[i].stackAddCard(deck.stackDeal());
+			game.hands[i].stackAddCard(deck.stackDeal());
 		}
 	}
 	
-    games[game].deck = deck;
-    games[game].trick = [];
-    games[game].tricksTaken = [];
-    games[game].dealer = dealer;
-    games[game].flip = flip
-    games[game].score = [0, 0];
-    games[game].turn = nextPlayer(dealer);
+    game.deck = deck;
+    game.trick = [];
+    game.tricksTaken = [];
+    game.dealer = dealer;
+    game.flip = flip
+    game.score = [0, 0];
+    game.turn = nextPlayer(dealer);
     
-    return games[game];
+    return game;
 }
 
 // Returns the next player in line after n
@@ -100,28 +127,16 @@ function handWinner(hR) {
 	return hR[0] + hR[2] > hR[1] + hR[3] ? 0 : 1;
 }
 
+// Creates an inital game object
+// String -> Game
 function setUpGame(gn) {
 
-	// Create the game
-	/*
-	    Each player's hand - [Stack, Stack, Stack, Stack]
-	    The deck - Stack
-	    The trick - [Card, Card, Card, Card]
-	    How many tricks have been played / won - [Number, Number, Number, Number] 
-	    The dealer - Player
-	    Who called trump - Player
-	    trump - Suit
-	    flip - Card flipped over
-	    	* if undefined, play stage or game not started
-	    	* if null, card flipped over trump stage
-	    	* if card, trump stage
-	    The score - [Number, Number]
-	    Who's turn it is - Player
-	    Communication with this 'room' - socket.io connection
-    */
+	var tempdeck = new Stack();
+	tempdeck.makeDeck(1);
+
     return {
         hands: [new Stack(), new Stack(), new Stack(), new Stack()],
-        deck: new Stack().makeDeck(24),
+        deck: tempdeck,
         trick: [],
         tricksTaken: [0, 0, 0, 0],
         dealer: undefined,

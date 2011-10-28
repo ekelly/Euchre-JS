@@ -3,7 +3,7 @@ var logic = require('./logic.js'),
 	Stack = require('./stack.js'),
 	rh = require('./requestHandlers.js');
 	
-var c1, c2, c3, c4, c5, s1, g1, testsPassed = 0;
+var c1, c2, c3, c4, c5, d1, s1, g1, g2, testsPassed = 0;
 	
 function test() {
 	creation();
@@ -20,6 +20,34 @@ function creation() {
 	c4 = new Card("9", "C");
 	c5 = new Card("10", "D");
 	s1 = new Stack();
+	d1 = new Stack();
+	d1.makeDeck(1);
+	g1 = { 
+		hands: [new Stack(), new Stack(), new Stack(), new Stack()],
+        deck: d1,
+        trick: [],
+        tricksTaken: [0, 0, 0, 0],
+        dealer: undefined,
+        calledTrump: undefined,
+        trump: undefined,
+        flip: undefined,
+        score: [0, 0],
+        turn: undefined,
+        name: 'test'
+    };
+    g2 = { 
+		hands: [new Stack(), new Stack(), new Stack(), new Stack()],
+        deck: d1,
+        trick: [],
+        tricksTaken: [0, 0, 0, 0],
+        dealer: undefined,
+        calledTrump: undefined,
+        trump: undefined,
+        flip: undefined,
+        score: [0, 0],
+        turn: undefined,
+        name: 'test2'
+    };
 }
 
 function testLogic() {
@@ -38,7 +66,10 @@ function testLogic() {
 		[c1, c2, c3, c5], "C", 2) == 2);
 		
 	assertTrue("handWinner1", logic.handWinner([2, 3, 0, 0]) == 1);
-	assertTrue("handWinner1", logic.handWinner([2, 1, 1, 1]) == 0);
+	assertTrue("handWinner2", logic.handWinner([2, 1, 1, 1]) == 0);
+	
+	var testg = logic.setup('test');
+	assertTrue("setUpGame", objEqual(testg, g1));
 }
 
 function testCard() {
@@ -65,6 +96,57 @@ function testCard() {
 
 function testStack() {
 
+}
+
+function objEqual(o1, o2) {
+  for(p in o1) {
+      if(typeof(o2[p])=='undefined' && typeof(o1[p])!='undefined') {
+      	return false;
+      }
+  }
+
+  for(p in o1) {
+      if (o1[p]) {
+          switch(typeof(o1[p])) {
+              case 'object':
+                  if (!objEqual(o1[p], o2[p])) { 
+                  	return false; 
+                  } 
+                  break;
+              case 'function':
+                  if (typeof(o2[p])=='undefined' ||
+                      (p != 'equals' && o1[p].toString() != o2[p].toString()))
+                      return false;
+                  break;
+              default:
+                  if (o1[p] != o2[p]) { 
+                  	return false; 
+                  }
+          }
+      } else {
+          if (o2[p])
+              return false;
+      }
+  }
+
+  for(p in o2) {
+      if(typeof(o1[p])=='undefined') {
+      	return false;
+      }
+  }
+
+  return true;
+}
+
+// Personal test function to check status
+function printObj(obj) {
+    var output = '';
+            
+    console.log("Data:  \n{");
+    for (property in obj) {
+      console.log("\t" + property + ": " + obj[property] + ";");
+    }
+    console.log("}");
 }
 
 function assertTrue(name, test) {

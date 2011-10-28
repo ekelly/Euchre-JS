@@ -54,7 +54,7 @@ function stack() {
 */
 
 // A Deck is a Stack
-// Creates a Deck with the given number of cards
+// Creates n Decks
 // number -> Deck
 function stackMakeDeck(n) {
 
