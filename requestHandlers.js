@@ -85,11 +85,12 @@ function wait(response, context) {
     var gn = context['gamename'],
     	data = {
     		name: gn
-    	};
+    	},
+    	clients = io.sockets.clients(gn);
     if(games[gn] == undefined) {
         games[gn] = main.setup(gn);
         data['message'] = "Game " + gn + " created.";
-    } else if(games[gn].hands.length >= 4) {
+    } else if(clients.length >= 4) {
         data['message'] = "Sorry!  Game is full";
     } else {
 	    //console.log(games[gn].players);

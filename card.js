@@ -24,16 +24,18 @@ var trumpRank = {
 
 // Card Suit -> boolean
 // Returns true if this card is higher than that card, given the trump suit
+// If the two have equal value, this card is considered higher than that card
 function isHigher(card, trump) {
     var diff;
     if (this.activeSuit == trump) {
         if (card.activeSuit == trump) {
             diff = trumpRank[this.rank] - trumpRank[card.rank];
-            if (diff > 1) {
+            if (diff > 0) {
                 return true;
-            } else if (diff < 1) {
+            } else if (diff < 0) {
                 return false;
             } else {
+            	// Bouer case
                 return this.suit == trump;
             }
         } else {
@@ -41,12 +43,12 @@ function isHigher(card, trump) {
         }
     } else {
         if (card.activeSuit == trump) {
-            return true;
+            return false;
         } else {
             diff = normalRank[this.rank] - normalRank[card.rank];
-            if (diff > 1) {
+            if (diff > 0) {
                 return true;
-            } else if (diff < 1) {
+            } else if (diff < 0) {
                 return false;
             } else {
                 return true;
@@ -56,9 +58,10 @@ function isHigher(card, trump) {
 }
 
 // Suit -> 
-// Switches the active suit of the card if it is the left bauer
+// Sets the correct active suit of the card if it is the left bauer
 // (left bauer is the Jack of the opposing suit)
 function switchSuit(trump) {
+	this.activeSuit = this.suit;
     if (this.rank == "J") {
         switch (trump) {
         case "C":
@@ -79,7 +82,8 @@ function switchSuit(trump) {
         case "S":
 			if(this.suit == "C") {
             	this.activeSuit = "S";
-            }            break;
+            }           
+            break;
         }
     }
 }

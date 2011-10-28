@@ -27,6 +27,11 @@
 				// otherwise, play a card
 			});
 			
+			// This function is just to call server code for testing purposes
+			function testCode() {
+				client.emit('test');
+			}
+			
 		</script>
 	</head>
 	<body>

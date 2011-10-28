@@ -1,4 +1,5 @@
-var main = require('./logic.js');
+var main = require('./logic.js'),
+	test = require('./testing.js');
 
 function start() {
 	io.sockets.on('connection', function(socket) {
@@ -6,7 +7,6 @@ function start() {
 	    socket.on('join game', function(data, responseFtn) {
 	      console.log("Join game request");
 		  var clients = io.sockets.clients(data);
-		  
 		  if(clients.length < 4) {
 			  socket.set('player', clients.length, function() {
 			      socket.join(data);
@@ -16,7 +16,7 @@ function start() {
 			      console.log('Player ' + clients.length + ' joined ');
 			  });
 		  } else {
-			  response.error = 'game full';
+			  var response = { error: 'game full' };
 			  responseFtn(response);
 		  }
 	    });
@@ -77,6 +77,12 @@ function start() {
 	    socket.on('disconnect', function () {
 	        console.log('user disconnected');
 	    });
+	    
+	    
+	    socket.on('test', function() {
+	    	test.test();
+	    });
+	    
 	});
 }
 

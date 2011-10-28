@@ -34,6 +34,7 @@ function start(game, context) {
 function nextPlayer(n) {
 	return (n+1) % 4;
 }
+
 // Called when a player indicates trump has been set
 // String Suit ->
 function setTrump(game, trump) {
@@ -79,9 +80,12 @@ function receiveCard(game, player, card) {
 // trick trump Number -> number
 function trickWinner(trick, trump, lead) {
 	var winner = lead;
+	var leadSuit = trick[lead].suit;
 	for(var i = 0; i < 4; i++) {
-		if(trick[i].isHigher(trick[winner])) {
-			winner = i;
+		if(trick[i].suit == leadSuit || trick[i].suit == trump) {
+			if(!trick[winner].isHigher(trick[i])) {
+				winner = i;
+			}
 		}
 	}
 	return winner;
@@ -108,6 +112,9 @@ function setUpGame(gn) {
 	    Who called trump - Player
 	    trump - Suit
 	    flip - Card flipped over
+	    	* if undefined, play stage or game not started
+	    	* if null, card flipped over trump stage
+	    	* if card, trump stage
 	    The score - [Number, Number]
 	    Who's turn it is - Player
 	    Communication with this 'room' - socket.io connection
@@ -127,6 +134,12 @@ function setUpGame(gn) {
     }
 }
 
+// Temporarily externally visible for testing
+exports.arrsum = arrSum;
+exports.handWinner = handWinner;
+exports.trickWinner = trickWinner;
+
+// Externally visible
 exports.setup = setUpGame;
 exports.start = start;
 exports.setTrump = setTrump;
