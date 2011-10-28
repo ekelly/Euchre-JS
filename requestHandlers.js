@@ -83,7 +83,9 @@ function join(response, context) {
 // Represents the 'waiting' screen.  Game exists but has not started
 function wait(response, context) {
     var gn = context['gamename'],
-    	data = {};
+    	data = {
+    		name: gn
+    	};
     if(games[gn] == undefined) {
         games[gn] = main.setup(gn);
         data['message'] = "Game " + gn + " created.";

@@ -46,6 +46,7 @@ function pickUp(game, dealer) {
 }
 
 // sums up the values in the given array
+// array -> number
 function arrSum(arr) {
 	var sum = 0;
 	for(var i = 0; i < arr.length; i++) {
@@ -65,7 +66,7 @@ function receiveCard(game, player, card) {
 	if(g.trick.length == 4) {
 		winningPlayer = trickWinner(g.trick, g.trump, nextPlayer(player));
 		g.tricksTaken[winningPlayer]++;
-		if(arrSum(g.tricksTaken)) == 5) {
+		if(arrSum(g.tricksTaken) == 5) {
 			// Calculate the score
 		}
 	}

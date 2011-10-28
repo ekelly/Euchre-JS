@@ -9,9 +9,8 @@ var http = require('http'),
     sockets = require('./sockets.js');
         
 io = require('socket.io').listen(app)
-    
+
 function handler (request, response) {
-	sockets.start();
 
     var pathname = url.parse(request.url).pathname;
     
@@ -33,3 +32,4 @@ function handler (request, response) {
 }
 
 app.listen(8888, "127.0.0.1");
+sockets.start();

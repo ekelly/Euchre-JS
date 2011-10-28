@@ -3,12 +3,12 @@
 	<head>
 		<title>Euchre</title>
 		<script src="http://code.jquery.com/jquery-latest.js"></script>
-		<script src="http://localhost:80/socket.io/socket.io.js"></script>
+		<script src="http://localhost:8888/socket.io/socket.io.js"></script>
 		<script>
-			var client = io.connect('http://localhost:80/');
+			var client = io.connect('http://localhost:8888/');
 			
 			client.on('connect', function() {
-				client.emit('join room', {{name}}, function(response) {
+				client.emit('join game', '{{name}}', function(response) {
 					console.log(response);
 				});
 			});

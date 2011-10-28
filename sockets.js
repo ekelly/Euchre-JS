@@ -2,8 +2,9 @@ var main = require('./logic.js');
 
 function start() {
 	io.sockets.on('connection', function(socket) {
-    
+    	
 	    socket.on('join game', function(data, responseFtn) {
+	      console.log("Join game request");
 		  var clients = io.sockets.clients(data);
 		  
 		  if(clients.length < 4) {
@@ -12,6 +13,7 @@ function start() {
 			      responseFtn("You've joined " + data);
 			      socket.broadcast.to(data)
 			        .send('Player ' + clients.length + ' joined ' + data);
+			      console.log('Player ' + clients.length + ' joined ');
 			  });
 		  } else {
 			  response.error = 'game full';
@@ -118,4 +120,4 @@ io.sockets.on('connection', function(socket) {
 })
 */
 
-exports.start = main.setup;
+exports.start = start;
