@@ -10,6 +10,34 @@ var Card = require('./card.js');
 
 // A Stack is a new Stack()
 // Represents a collection of cards
+
+function stack() {
+
+  return {
+    // Create an empty array of cards.
+    cards: [],
+    
+    makeDeck: stackMakeDeck,
+    shuffle: stackShuffle,
+    deal: stackDeal,
+    draw: stackDraw,
+    addCard: stackAddCard,
+    combine: stackCombine,
+    cardCount: stackCardCount,
+    size: stackCardCount,
+    sort: sort,
+    playableCards: playable,
+    contains: contains,
+    setTrump: setTrump
+  }
+}
+
+
+/*
+ Alternative constructor.  Not used.
+ I may change my mind later down the road,
+ but since both constructors are interchangable,
+ it doesn't matter that much
 function Stack() {
 
   // Create an empty array of cards.
@@ -27,29 +55,6 @@ function Stack() {
   this.sort          = sort;
   this.playableCards = playable;
   this.contains      = contains;
-}
-/*
- Alternative constructor.  Not used.
- I may change my mind later down the road,
- but since both constructors are interchangable,
- it doesn't matter that much
-function stack() {
-
-  return {
-    // Create an empty array of cards.
-    cards: [],
-    
-    makeDeck: stackMakeDeck,
-    shuffle: stackShuffle,
-    deal: stackDeal,
-    draw: stackDraw,
-    addCard: stackAddCard,
-    combine: stackCombine,
-    cardCount: stackCardCount,
-    size: stackCardCount,
-    sort: stackSort,
-    playableCards: playable
-  }
 }
 */
 
@@ -76,6 +81,8 @@ function stackMakeDeck(n) {
       for (k = 0; k < ranks.length; k++)
         this.cards[i * m + j * ranks.length + k] =
           new Card(ranks[k], suits[j]);
+          
+  return this;
 }
 
 // Shuffles the stack n times
@@ -94,6 +101,8 @@ function stackShuffle(n) {
       this.cards[j] = this.cards[k];
       this.cards[k] = temp;
     }
+  
+  return this;
 }
 
 // Deals a single card from the stack
@@ -136,6 +145,7 @@ function stackCardCount() {
 function stackAddCard(card) {
 
   this.cards.push(card);
+  return this;
 }
 
 // Combines this stack with that stack
@@ -144,6 +154,7 @@ function stackCombine(stack) {
 
   this.cards = this.cards.concat(stack.cards);
   stack.cards = new Array();
+  return this;
 }
 
 // Returns the index of the lowest card
@@ -201,11 +212,13 @@ function playable(s) {
 }
 
 // Swaps the suit of the left bauer
-// -> 
+// Suit -> Stack
 function setTrump(s) {
+	var c;
 	for(c in this.cards) {
-		c.switchSuit(s);
+		this.cards[c].switchSuit(s);
 	}
+	return this;
 }
 
-module.exports = Stack;
+module.exports = stack;

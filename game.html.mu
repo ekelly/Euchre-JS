@@ -15,7 +15,7 @@
 				});
 			});
 			
-			client.on('msg', function (msg) {
+			client.on('msg', function(msg) {
 				console.log(msg);
 				$('body').append(msg);
 			});
@@ -27,6 +27,14 @@
 				// if the flip has been turned over
 				
 				// otherwise, play a card
+			});
+			
+			client.on('status', function(gamestate) {
+			
+			});
+			
+			client.on('disconnect', function() {
+				$('body').append('Uh oh! Something went wrong. Disconnect');
 			});
 			
 			// This function is just to call server code for testing purposes

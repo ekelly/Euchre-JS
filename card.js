@@ -57,7 +57,7 @@ function isHigher(card, trump) {
     }
 }
 
-// Suit -> 
+// Suit -> Card
 // Sets the correct active suit of the card if it is the left bauer
 // (left bauer is the Jack of the opposing suit)
 function switchSuit(trump) {
@@ -86,6 +86,7 @@ function switchSuit(trump) {
             break;
         }
     }
+    return this;
 }
 
 function cardToString() {
@@ -151,7 +152,7 @@ function equals(card) {
 // A rank is a String "2" - "10", "J", "Q", "K", "A"
 // A suit is one of "H", "D", "S", "C"
 // A card is a new Card(Rank, Suit);
-
+/*
 function Card(rank, suit) {
 
     this.rank = rank;
@@ -163,14 +164,8 @@ function Card(rank, suit) {
     this.isHigher = isHigher;
     this.equals = equals;
 }
+*/
 
-module.exports = Card;
-
-
-/*
- Alternative Constructor.  Not used
- I decided to go for the method that explicitly needs new.
- I'll probably change my mind again later down the road
 function card(rank, suit) {
 
   return {
@@ -179,7 +174,9 @@ function card(rank, suit) {
       activeSuit: suit,
       toString: cardToString,
       switchSuit: switchSuit,
-      isHigher: isHigher
+      isHigher: isHigher,
+      equals: equals
   }
 }
-*/
+
+module.exports = card;

@@ -45,10 +45,12 @@ function join(response, context) {
     var data = {
     	show: isEmpty(games)
     };
+    
     for(gameName in games) {
-        data['games'] = { 
+	    var clients = io.sockets.clients(gameName);
+        data.games = { 
         	name:   gameName,
-        	length: games[gameName].hands.length
+        	length: clients.length
         };
     }
         

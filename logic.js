@@ -5,16 +5,9 @@ var Stack = require('./stack.js'),
 /* A game is:
 
 	{
-        hands: [Stack, Stack, Stack, Stack],
-        deck: Stack
-        trick: [Card, Card, Card, Card],
-        tricksTaken: [Number, Number, Number, Number],
-        dealer: Player,
-        calledTrump: Player,
-        trump: Suit,
-        flip: Card, Null, or Undefined,
+		players: [Socket, Socket, Socket, Socket]
+        round: Round
         score: [Number, Number],
-        turn: Player,
         name: String
     }
 
@@ -24,36 +17,58 @@ var Stack = require('./stack.js'),
     	* if null, card flipped over trump stage
     	* if card, trump stage
     The score - [Number, Number]
+    
+    A Round is:
+    
+    {
+    	hands: [Stack, Stack, Stack, Stack],
+        deck: Stack
+        trick: [Card, Card, Card, Card],
+        tricksTaken: [Number, Number, Number, Number],
+        dealer: Player,
+        calledTrump: Player,
+        trump: Suit,
+        flip: Card, Null, or Undefined,
+        turn: Player,
+    }
 */
 	
 	
-// Starts the game by dealing
-// Then flipping the top card
+// Creates a new game object
 // Game Context -> Game
-function start(game, context) {
-	var dealer = Math.floor(Math.random()*4),
-		deck = (new Stack()).makeDeck(1).shuffle(7),
-		flip = deck.stackDeal();
+function start(game) {
+    game.score = [0, 0];
+	game.round = newRound();
+    return game;
+}
+
+// Returns a new Round instance
+// -> Round
+function newRound() {
+	var round = {},
+		dealer = Math.floor(Math.random()*4),
+		deck = Stack().makeDeck(1).shuffle(7),
+		flip = deck.deal();
+
 	deck.setTrump(flip.suit);
 	
 	// Deal
-	game.hands = [];
+	round.hands = [];
 	for(var i = 0; i < 4; i++) {
-		game.hands[i] = new Stack()
-		for(var j = 0; i < 5; j++) {
-			game.hands[i].stackAddCard(deck.stackDeal());
+		round.hands[i] = new Stack();
+		for(var j = 0; j < 5; j++) {
+			round.hands[i].addCard(deck.deal());
 		}
 	}
 	
-    game.deck = deck;
-    game.trick = [];
-    game.tricksTaken = [];
-    game.dealer = dealer;
-    game.flip = flip
-    game.score = [0, 0];
-    game.turn = nextPlayer(dealer);
-    
-    return game;
+    round.deck = deck;
+    round.trick = [];
+    round.tricksTaken = [];
+    round.dealer = dealer;
+    round.flip = flip;
+    round.turn = nextPlayer(dealer);
+        
+    return round;
 }
 
 // Returns the next player in line after n
@@ -63,14 +78,12 @@ function nextPlayer(n) {
 }
 
 // Called when a player indicates trump has been set
-// String Suit ->
-function setTrump(game, trump) {
-	games[game].trump = trump;
-}
-
-// Tells the dealer to pick up the card
-function pickUp(game, dealer) {
-	// Not implemented yet	
+// Round Suit -> Round
+function setTrump(round, trump, player) {
+	round.trump = trump;
+	round.calledTrump = player;
+	
+	return game.round;
 }
 
 // sums up the values in the given array
@@ -83,22 +96,47 @@ function arrSum(arr) {
 	return sum;
 }
 
+// Takes the score, the player who called trump, if player is going alone
+// and returns the change in score
+// Array of four numbers, Player, Boolean -> Number
+function incrementScore(trickCount, calledTrump, alone) {
+	var teamScore = trickCount[(calledTrump % 2)] + 
+					trickCount[(calledTrump % 2) + 2];
+	if(teamScore < 3) {
+		return -3;
+	} else if(teamScore == 5) {
+		if(alone) {
+			return 4;
+		} else {
+			return 2;
+		}
+	} else {
+		return 1;
+	}
+}
+
 // Receive a card.  Called when a player makes a move
-// String Number Card ->
+// Game Number Card -> Number (next Player if continue, -1 if round ended)
 function receiveCard(game, player, card) {
 	alert('received card');
-	var g = games[game],
+	var r = game.round,
 		winningPlayer;
-	g.trick[player] = card;
+	r.trick[player] = card;
 	// check if recieved cards = 4
-	if(g.trick.length == 4) {
-		winningPlayer = trickWinner(g.trick, g.trump, nextPlayer(player));
-		g.tricksTaken[winningPlayer]++;
-		if(arrSum(g.tricksTaken) == 5) {
-			// Calculate the score
-		}
-	}
 	// if so, determine trick winner
+	if(r.trick.length == 4) {
+		winningPlayer = trickWinner(r.trick, r.trump, nextPlayer(player));
+		r.tricksTaken[winningPlayer]++;
+		if(arrSum(r.tricksTaken) == 5) {
+			// Calculate the score
+			game.score[(r.calledTrump % 2)] += 
+				incrementScore(r.tricksTaken, r.calledTrump, r.alone);
+			// Let the game know to start a new round
+			return -1;
+		}
+		return winningPlayer;
+	}
+	return nextPlayer(player);
 }
 
 // A trick is an array of four cards
@@ -130,22 +168,9 @@ function handWinner(hR) {
 // Creates an inital game object
 // String -> Game
 function setUpGame(gn) {
-
-	var tempdeck = new Stack();
-	tempdeck.makeDeck(1);
-
     return {
-        hands: [new Stack(), new Stack(), new Stack(), new Stack()],
-        deck: tempdeck,
-        trick: [],
-        tricksTaken: [0, 0, 0, 0],
-        dealer: undefined,
-        calledTrump: undefined,
-        trump: undefined,
-        flip: undefined,
-        score: [0, 0],
-        turn: undefined,
-        name: gn
+        name: gn,
+        players: 0
     }
 }
 
@@ -158,5 +183,6 @@ exports.trickWinner = trickWinner;
 exports.setup = setUpGame;
 exports.start = start;
 exports.setTrump = setTrump;
-exports.pickUp = pickUp;
 exports.playCard = receiveCard;
+exports.newRound = newRound;
+exports.nextPlayer = nextPlayer;

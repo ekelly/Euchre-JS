@@ -14,6 +14,9 @@ function start() {
 			      socket.broadcast.to(data)
 			        .send('Player ' + clients.length + ' joined ' + data);
 			      console.log('Player ' + clients.length + ' joined ');
+			      /*
+			      games[data].players[clients.length - 1] = socket;
+			      */
 			  });
 		  } else {
 			  var response = { error: 'game full' };
@@ -21,53 +24,80 @@ function start() {
 		  }
 	    });
 	    
-	    socket.on('start game', function(game, msg) {
+	    // String ->
+	    socket.on('start game', function(game) {
 	    	console.log("Game " + game + " starting");
-	    	var data = main.start(games[game], msg),
+	    	var data = main.start(games[game]),
 	    		clients = io.sockets.clients(game);
 	    	// Message the status to everyone
-	    	sockets.emit('status', data);
+	    	io.sockets.in(game).emit('status', data);
 	    	// Let the player whose turn it is know
-	    	socket.get('player', function(err, player) {
-	    		if(player == data.turn) {
-	    			socket.emit('turn');
-	    		}
-	    	});
+	    	tellPlayerTurn(data.turn, game);
 	    	console.log("Game " + game + " started");
 	    });
 	    
+	    // String Card -> 
 	    socket.on('play card', function(game, card) {
 	    	console.log("Received card " + card.toString());
 	    	// Get socket player number
 	    	socket.get('player', function (err, player) {
-				var data = main.playCard(game, player, card);
+				var nextPlayer = main.playCard(games[game], player, card);
 				// Let everyone know what happened
-				sockets.emit('status', data);
+				io.sockets.in(game)('status', games[game].round);
+				// If a new round needs to start
+				if(nextPlayer == -1) {
+					main.newRound();
+					// Broadcast the new status
+					io.sockets.in(game)('status', games[game].round);
+				}
+				// If a new trick needs to start
+				if(games[game].round.trick.length == 4) {
+					games[game].round.trick = [];
+					// Broadcast the new status
+					io.sockets.in(game)('status', games[game].round);
+				}
 				// Let the player whose turn it is know
-		    	socket.get('player', function(err, player) {
-		    		if(player == data.turn) {
-		    			socket.emit('turn');
-		    		}
-		    	});
+				tellPlayerTurn(nextPlayer, game);
+				/*
+		    	games[game].players[nextPlayer].emit('turn');
+		    	*/
 		    });
 	    });
 	    
-	    socket.on('set trump', function(game, action) {
+	    // TODO: going alone support
+	    socket.on('trump', function(gname, action, trump) {
+	    	var g = games[gname];
 	    	console.log("Setting trump… maybe");
 	    	switch(action) {
 				case 'pass':
 					// Next player
+					socket.get('player', function(err, player) {
+						tellPlayerTurn(main.nextPlayer(player), g);
+					});
 					break;
 				case 'pick up':
 					// Set trump
-					main.setTrump(game, trump);
+					socket.get('player', function(err, pnum) {
+						main.setTrump(g.round, g.round.flip.trump, pnum);
+					});
 					// Tell dealer to pick up & discard
-					main.pickUp(game, dealer);
-					// Player start
+					tellPlayer(g.round.dealer, gname, 'pick up flip', {});
+					// Receive discarded card
+					socket.on('discard', function(card) {
+						// Start the round
+						tellPlayerTurn(main.nextPlayer(dealer), gname);
+					});
 					break;
-				case 'go alone':
-					main.setTrump(game, trump);
-					// Some logic to skip over the partner
+				case 'choose trump':
+					if(trump != g.round.flip.trump) {
+						socket.get('player', function(err, pnum) {
+							main.setTrump(g.round, trump, pnum);
+						});
+					}
+					// Send the status to everyone
+
+					// Tell the lead player it's his turn
+					tellPlayerTurn(main.nextPlayer(dealer), gname);
 					break;
 			}
 	    	main.setTrump(game, action);
@@ -78,7 +108,6 @@ function start() {
 	        console.log('user disconnected');
 	    });
 	    
-	    
 	    socket.on('test', function() {
 	    	test.test();
 	    });
@@ -86,44 +115,24 @@ function start() {
 	});
 }
 
+// Informs the player that it is their turn
+// Player String -> 
+function tellPlayerTurn(nextPlayer, game) {
+	tellPlayer(nextPlayer, game, 'turn', {});
+}
 
-/*
-Notes/Examples of Socket.io for reference
-
-io.sockets.on('connection', function(socket) {
-    io.sockets.emit('this', { will: 'be received by everyone'});
-    
-    socket.emit('news', { hello: 'world' });
-    socket.on('my other event', function (data) {
-        console.log(data);
-    });
-    
-    var chat = io
-        .of('/chat')
-        .on('connection', function (socket) {
-          socket.emit('a message', {
-              that: 'only'
-            , '/chat': 'will get'
-          });
-          chat.emit('a message', {
-              everyone: 'in'
-            , '/chat': 'will get'
-          });
-        });
-  
-    var news = io
-        .of('/news')
-        .on('connection', function (socket) {
-          socket.emit('item', { news: 'item' });
-        });
-
-    socket.on('private message', function (from, msg) {
-        console.log('I received a private message by ', from, ' saying ', msg);
-    });
-    socket.on('disconnect', function () {
-        sockets.emit('user disconnected');
-    });
-})
-*/
+// Tells the specified player the specified message
+// Player String String Object ->
+function tellPlayer(player, game, msg, data) {
+	var clients = io.sockets.clients(game),
+		socket;
+	for(socket in clients) {
+		clients[socket].get('player', function(err, pnum) {
+			if(pnum == player) {
+				socket.emit(msg, data);
+			}
+		});
+	}
+}
 
 exports.start = start;

@@ -48,11 +48,11 @@ function creation() {
         turn: undefined,
         name: 'test'
     };
-    o1 = { 
+    var o1 = { 
 		hands: [new Stack(), new Stack(), new Stack(), new Stack()],
         deck: d1,
         trick: [],
-    };
+    },
     o2 = { 
 		hands: [new Stack(), new Stack(), new Stack(), new Stack()],
         deck: d1,
